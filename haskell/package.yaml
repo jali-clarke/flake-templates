@@ -1,0 +1,31 @@
+# https://github.com/sol/hpack
+
+name: hello-world
+version: 0.0.0.1
+build-type: Simple
+
+dependencies:
+- base
+
+executables:
+  hello-world:
+    main: Main.hs
+    source-dirs:
+    - app
+    dependencies:
+    - hello-world
+
+library:
+  source-dirs:
+  - src
+
+tests:
+  hello-world-tests:
+    main: Spec.hs
+    source-dirs:
+    - test
+    dependencies:
+    - hello-world
+
+    - hspec
+    - QuickCheck

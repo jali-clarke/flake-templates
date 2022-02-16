@@ -9,6 +9,7 @@
         pkgs = import nixpkgs { inherit system; };
       in
       {
+        defaultPackage = pkgs.haskellPackages.callPackage ./hello-world.nix { };
         devShell = pkgs.mkShell {
           buildInputs = [
             pkgs.nixpkgs-fmt
@@ -16,6 +17,7 @@
             pkgs.cabal-install
             pkgs.cabal2nix
             pkgs.ghc
+            pkgs.hpack
             pkgs.wget
           ];
         };
