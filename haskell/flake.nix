@@ -7,6 +7,11 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
+
+        cabalWrapped = pkgs.writeShellScriptBin "cabal" ''
+          ${pkgs.hpack}/bin/hpack
+          exec ${pkgs.cabal-install}/bin/cabal "$@"
+        '';
       in
       {
         defaultPackage = pkgs.haskellPackages.callPackage ./hello-world.nix { };
@@ -14,7 +19,7 @@
           buildInputs = [
             pkgs.nixpkgs-fmt
 
-            pkgs.cabal-install
+            cabalWrapped
             pkgs.cabal2nix
             pkgs.ghc
             pkgs.hpack
