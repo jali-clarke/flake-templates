@@ -7,7 +7,9 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        ghc = pkgs.haskell.packages.ghc922;
+
+        # can also use pkgs.haskell.packages.ghcXXX for a specific ghc version
+        ghcPkgs = pkgs.haskellPackages;
 
         cabalWrapped = pkgs.writeShellScriptBin "cabal" ''
           ${pkgs.hpack}/bin/hpack && exec ${pkgs.cabal-install}/bin/cabal "$@"
@@ -18,7 +20,7 @@
           ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt . && ${pkgs.ormolu}/bin/ormolu -i {app,src,test}/**/*.hs
         '';
 
-        hello-world = pkgs.haskellPackages.callCabal2nix "hello-world" ./. { };
+        hello-world = ghcPkgs.callCabal2nix "hello-world" ./. { };
       in
       {
         defaultPackage = hello-world;
