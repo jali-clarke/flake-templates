@@ -13,11 +13,23 @@ executables:
     source-dirs:
     - app
     dependencies:
+    - base
     - hello-world
+    ghc-options:
+    - -O2
+    - -Wall
+    - -Werror
+    - -threaded
 
 library:
   source-dirs:
   - src
+  dependencies:
+  - base
+  ghc-options:
+  - -O2
+  - -Wall
+  - -Werror
 
 tests:
   hello-world-tests:
@@ -25,7 +37,12 @@ tests:
     source-dirs:
     - test
     dependencies:
+    - base
     - hello-world
-
     - hspec
     - QuickCheck
+    ghc-options:
+    - -O2
+    - -Wall
+    - -Werror
+    - -threaded
