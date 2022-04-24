@@ -4,9 +4,6 @@ name: hello-world
 version: 0.0.0.1
 build-type: Simple
 
-dependencies:
-- base
-
 executables:
   hello-world:
     main: Main.hs
