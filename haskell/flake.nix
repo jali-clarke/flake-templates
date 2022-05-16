@@ -3,13 +3,18 @@
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (
+    {
+      overlays.default = final: prev: rec {
+        hello-world = haskellPackages.hello-world;
+
+        haskellPackages = prev.haskellPackages // {
+          hello-world = final.haskellPackages.callCabal2nix "hello-world" ./. { };
+        };
+      };
+    } // flake-utils.lib.eachDefaultSystem (
       system:
       let
-        pkgs = import nixpkgs { inherit system; };
-
-        # can also use pkgs.haskell.packages.ghcXXX for a specific ghc version
-        ghcPkgs = pkgs.haskellPackages;
+        pkgs = import nixpkgs { inherit system; overlays = [ self.overlays.default ]; };
 
         cabalWrapped = pkgs.writeShellScriptBin "cabal" ''
           ${pkgs.hpack}/bin/hpack && exec ${pkgs.cabal-install}/bin/cabal "$@"
@@ -19,17 +24,12 @@
           shopt -s globstar
           ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt . && ${pkgs.ormolu}/bin/ormolu -i {app,src,test}/**/*.hs
         '';
-
-        hello-world = ghcPkgs.callCabal2nix "hello-world" ./. { };
       in
       {
-        defaultPackage = hello-world;
-        packages = {
-          inherit hello-world;
-        };
+        packages.default = pkgs.hello-world;
 
-        devShell = pkgs.mkShell {
-          inputsFrom = [ hello-world.env ];
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [ pkgs.hello-world.env ];
           packages = [
             cabalWrapped
             format-all
