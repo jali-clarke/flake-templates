@@ -4,13 +4,18 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     {
-      overlays.default = final: prev: rec {
-        hello-world = haskellPackages.hello-world;
-
-        haskellPackages = prev.haskellPackages // {
-          hello-world = final.haskellPackages.callCabal2nix "hello-world" ./. { };
+      overlays.default = final: prev:
+        let
+          overrides = haskellSelf: haskellSuper: {
+            hello-world = haskellSelf.callCabal2nix "hello-world" ./. { };
+          };
+        in
+        {
+          haskellPackages = prev.haskellPackages.override { inherit overrides; };
+          haskell = prev.haskell // {
+            packages = builtins.mapAttrs (_: compilerPackages: compilerPackages.override { inherit overrides; }) prev.haskell.packages;
+          };
         };
-      };
     } // flake-utils.lib.eachDefaultSystem (
       system:
       let
@@ -25,11 +30,11 @@
           ${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt . && ${pkgs.ormolu}/bin/ormolu -i {app,src,test}/**/*.hs
         '';
       in
-      {
-        packages.default = pkgs.hello-world;
+      rec {
+        packages.default = pkgs.haskellPackages.hello-world;
 
         devShells.default = pkgs.mkShell {
-          inputsFrom = [ pkgs.hello-world.env ];
+          inputsFrom = [ packages.default.env ];
           packages = [
             cabalWrapped
             format-all
