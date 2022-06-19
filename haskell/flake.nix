@@ -4,18 +4,24 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     {
-      overlays.default = final: prev:
-        let
-          overrides = haskellSelf: haskellSuper: {
-            hello-world = haskellSelf.callCabal2nix "hello-world" ./. { };
-          };
-        in
-        {
-          haskellPackages = prev.haskellPackages.override { inherit overrides; };
+      overlays = {
+        haskell = haskellSelf: haskellSuper: {
+          hello-world = haskellSelf.callCabal2nix "hello-world" ./. { };
+        };
+
+        default = final: prev: {
+          haskellPackages = prev.haskellPackages.override { overrides = self.overlays.haskell; };
           haskell = prev.haskell // {
-            packages = builtins.mapAttrs (_: compilerPackages: compilerPackages.override { inherit overrides; }) prev.haskell.packages;
+            packages =
+              let
+                addPackages = _: compilerPackages: compilerPackages.override {
+                  overrides = self.overlays.haskell;
+                };
+              in
+              builtins.mapAttrs addPackages prev.haskell.packages;
           };
         };
+      };
     } // flake-utils.lib.eachDefaultSystem (
       system:
       let
