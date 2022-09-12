@@ -18,7 +18,7 @@
       pkgs = import nixpkgs { inherit system; overlays = [ self.overlays.default ]; };
 
       cabalWrapped = pkgs.writeShellScriptBin "cabal" ''
-        ${pkgs.hpack}/bin/hpack && exec ${pkgs.cabal-install}/bin/cabal "$@"
+        ${pkgs.hpack}/bin/hpack && exec ${pkgs.cabal-install}/bin/cabal --offline "$@"
       '';
 
       format-all = pkgs.writeShellScriptBin "format-all" ''
