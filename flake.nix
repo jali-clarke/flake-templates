@@ -5,8 +5,8 @@
   outputs = { self, nixpkgs, flake-utils }:
     {
       templates = {
-        bare = {
-          path = ./bare;
+        basic = {
+          path = ./basic;
         };
 
         haskell = {
